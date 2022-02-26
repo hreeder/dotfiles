@@ -1,10 +1,5 @@
-[profile iam-long-term]
-region = eu-west-1
-
-[profile iam]
+[profile default-long-term]
 region = eu-west-1
 
 [profile default]
-source_profile = iam
 region = eu-west-1
-role_arn = {{ env("AWS_ASSUME_ARN") }}
