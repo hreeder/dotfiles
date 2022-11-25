@@ -1,0 +1,108 @@
+---
+- ansible.builtin.include_role:
+    name: geerlingguy.mac.homebrew
+  vars:
+    homebrew_upgrade_all_packages: true
+    homebrew_taps:
+    - homebrew/cask-fonts
+    homebrew_cask_apps:
+    - alfred
+    - amethyst
+    - firefox
+    - font-jetbrains-mono
+    - google-chrome
+    - iterm2
+    - spotify
+    - visual-studio-code
+    homebrew_installed_packages:
+    - awscli
+    - colima
+    - docker-compose
+    - fswatch
+    - gh
+    - gnupg
+    - go
+    - helm
+    - httpie
+    - hub
+    - jq
+    - mas
+    - neofetch
+    - node
+    - openssl
+    - packer
+    - pinentry-mac
+    - pyenv
+    - pyenv-virtualenv
+    - readline
+    - starship
+    - tfenv
+    - trivy
+    - vault
+    - ykman
+    - yubikey-personalization
+
+- ansible.builtin.include_role:
+    name: geerlingguy.mac.mas
+  tags:
+  - mas
+  vars:
+    mas_signin_dialog: true
+    mas_upgrade_all_apps: true
+    mas_installed_apps:
+    - { id: 497799835, name: "Xcode" }
+    - { id: 1091189122, name: "Bear" }
+    - { id: 1452453066, name: "Hidden Bar" }
+    - { id: 1502839586, name: "Hand Mirror" }
+    - { id: 1497506650, name: "Yubico Authenticator" }
+
+# Dockutil is currently being rewritten for macOS 12.3 compatibility and is not yet available via brew
+# - ansible.builtin.include_role:
+#     name: geerlingguy.mac.dock
+#   tags:
+#   - dock
+#   vars:
+#     dockitems_remove:
+#     - Messages
+#     - Mail
+#     - Maps
+#     - Photos
+#     - FaceTime
+#     - Calendar
+#     - Contacts
+#     - Reminders
+#     - Notes
+#     - TV
+#     - Music
+#     - Podcasts
+#     - News
+#     - Keynote
+#     - Numbers
+#     - Pages
+#     dockitems_persist:
+#     - name: Visual Studio Code
+#       path: "/Applications/Visual Studio Code.app/"
+#     - name: iTerm
+#       path: "/Applications/iTerm.app/"
+
+- name: Get current dock icon size
+  command: defaults read com.apple.dock tilesize
+  register: dock_current_size
+  check_mode: false
+  changed_when: false
+
+- name: Set dock icon size
+  when: dock_current_size.stdout | int != 48
+  command: "defaults write com.apple.dock tilesize -int 48"
+  notify:
+  - Restart Dock
+
+- name: Get current dock autohide status
+  command: defaults read com.apple.dock autohide
+  register: dock_current_autohide
+  check_mode: false
+  changed_when: false
+
+- name: Set dock autohide status
+  command: "defaults write com.apple.dock autohide -int 1"
+  when: dock_current_autohide.stdout | int != 1

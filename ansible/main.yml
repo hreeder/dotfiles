@@ -1,0 +1,7 @@
+---
+- name: Demo
+  hosts: localhost
+  connection: local
+  roles:
+  - role: base-mac
+    tags: ['base']
